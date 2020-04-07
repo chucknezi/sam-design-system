@@ -63,6 +63,14 @@ export class SdsFiltersComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    if (this.formlyUpdateComunicationService) {
+      this.formlyUpdateComunicationService.filterUpdate.subscribe(
+        (filter) => {
+          console.log(filter,'model from search')
+        this.model = filter;
+        }
+      )
+    }
     // const _isObj = (obj: any): boolean => typeof obj === 'object' && obj !== null;
     // const _isEmpty = (obj: any): boolean => Object.keys(obj).length === 0;
     // const overwrite = (baseObj: any, newObj: any) => {

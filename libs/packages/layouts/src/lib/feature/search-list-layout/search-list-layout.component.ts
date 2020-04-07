@@ -42,6 +42,49 @@ export class SearchListLayoutComponent implements OnInit {
         this.updateContent();
       }
     );
+
+   const searchListModel  = {
+    "searchKeyword": {
+      "keyword": "test"
+    },
+    "searchEntity": {
+      "uniqueEntityIdSam": 20,
+      "legalBusinessName": "20"
+    },
+    "keyword": {
+      "keyword": null
+    },
+    "entityStatus": {
+      "statusCheckbox": {
+        "Active": true
+      },
+      "entityName": null
+    },
+    "expirationDate": {
+      "expirationDateOpen": null,
+      "expirationDateMin": null,
+      "expirationDatemax": null,
+      "expirationDateboth": null,
+      "expirationDateRangeEx": {
+        "fromDate": null,
+        "toDate": null
+      },
+      "expirationDateOption": null,
+      "entityCheckbox": null
+    },
+    "entityType": {
+      "entityType": "al",
+      "entityCheckbox": {
+        "Active": true,
+        "Draft": true
+      }
+    }
+  };
+
+    if (this.formlyUpdateComunicationService) {
+      this.formlyUpdateComunicationService.updateFilter(searchListModel);
+    }
+
     if (this.formlyUpdateComunicationService) {
       this.formlyUpdateComunicationService.filterUpdate.subscribe(
         (filter) => {
