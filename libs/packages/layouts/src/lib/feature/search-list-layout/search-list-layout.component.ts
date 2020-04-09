@@ -2,7 +2,9 @@ import { Component, OnInit, Input, ContentChild, TemplateRef, Optional } from '@
 import { BehaviorSubject } from "rxjs";
 import { SearchListInterface, SearchListConfiguration } from './model/search-list-layout.model';
 import { SDSFormlyUpdateComunicationService } from '@gsa-sam/sam-formly';
-
+import { Router, NavigationStart } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Event as NavigationEvent } from "@angular/router";
 @Component({
   selector: 'search-list-layout',
   templateUrl: './search-list-layout.component.html',
@@ -15,7 +17,44 @@ export class SearchListLayoutComponent implements OnInit {
   */
   @ContentChild('resultContent') resultContentTemplate: TemplateRef<any>;
 
-  constructor(@Optional() private formlyUpdateComunicationService: SDSFormlyUpdateComunicationService) { }
+  constructor(@Optional() private formlyUpdateComunicationService: SDSFormlyUpdateComunicationService, private router: Router) { 
+
+
+  //   router.events
+  //   .pipe(
+    
+  //     filter(
+  //       ( event: NavigationEvent ) => {
+
+  //         return( event instanceof NavigationStart );
+
+  //       }
+  //     )
+  //   )
+  //   .subscribe(
+  //     ( event: NavigationStart ) => {
+
+      
+  //       console.log( "navigation id:", event.id );
+  //       console.log( "route:", event.url );
+       
+  //       console.log( "trigger:", event.navigationTrigger );
+
+        
+  //       if ( event.restoredState ) {
+
+  //         console.warn("restoring navigation id:",event.restoredState.navigationId);
+
+  //       }
+
+  //       console.groupEnd();
+
+  //     }
+  //   )
+  // ;
+
+
+  }
 
   /**
    * Input service to be called when items change
@@ -44,8 +83,9 @@ export class SearchListLayoutComponent implements OnInit {
     );
     if (this.formlyUpdateComunicationService) {
       this.formlyUpdateComunicationService.filterUpdate.subscribe(
-        (filter) => {
-          this.updateFilter(filter);
+        (filters) => {
+          localStorage.setItem('filter', JSON.stringify(filters));
+          this.updateFilter(filters);
         }
       )
     }
@@ -64,8 +104,8 @@ export class SearchListLayoutComponent implements OnInit {
    * updates the filter and set the page number to 1 and calls imported service
    * @param filter 
    */
-  public updateFilter(filter: any) {
-    this.filterData = filter;
+  public updateFilter(filters: any) {
+    this.filterData = filters;
     this.page.pageNumber = 1;
     this.updateContent();
   }
@@ -107,6 +147,9 @@ export class SearchListLayoutComponent implements OnInit {
    * calls service when updated
    */
   private updateContent() {
+    const getfilter = JSON.parse(localStorage.getItem('filter'));
+    
+    console.log(window.location.lasthash[window.location.lasthash.length-1] , 'hash')
     this.service.getData({ 'page': this.page, sortField: this.sortField, filter: this.filterData }).subscribe(
       (result) => {
         this.items = result.items;
