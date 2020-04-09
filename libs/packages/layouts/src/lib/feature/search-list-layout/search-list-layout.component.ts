@@ -149,7 +149,7 @@ export class SearchListLayoutComponent implements OnInit {
   private updateContent() {
     const getfilter = JSON.parse(localStorage.getItem('filter'));
     
-    console.log(window.location.lasthash[window.location.lasthash.length-1] , 'hash')
+    
     this.service.getData({ 'page': this.page, sortField: this.sortField, filter: this.filterData }).subscribe(
       (result) => {
         this.items = result.items;
