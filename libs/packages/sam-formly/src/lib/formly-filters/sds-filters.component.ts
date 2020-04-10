@@ -8,8 +8,9 @@ import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { Subject } from 'rxjs';
 import { SDSFormlyUpdateComunicationService } from './service/sds-filters-comunication.service';
 import { pairwise } from 'rxjs/operators';
-import { Router, ActivatedRoute, } from '@angular/router';
+import { Router, ActivatedRoute,} from '@angular/router';
 import * as qs from 'qs';
+import { Md5 } from 'ts-md5/dist/md5';
 
 @Component({
   selector: 'sds-filters',
@@ -53,35 +54,58 @@ export class SdsFiltersComponent implements OnInit {
    * debounce time for current page input
    */
   @Input() debounceTime = 0;
- 
+
+  routeTrigger = '';
   constructor(
     @Optional()
     private formlyUpdateComunicationService: SDSFormlyUpdateComunicationService,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private route: ActivatedRoute,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    const hasValue= qs.stringify(this.model, { skipNulls: true});
-    if(hasValue){
-      // const model = qs.parse(hasValue);
-      // if (this.formlyUpdateComunicationService) {
-      //   this.formlyUpdateComunicationService.updateFilter(this.model);
-      // }
-    }
-
-    if (this.formlyUpdateComunicationService) {
-      this.formlyUpdateComunicationService.filterUpdate.subscribe(
-        (filters) => {
-       this.model = filters;
+    localStorage.clear();
+    const _isObj = (obj: any): boolean => typeof obj === 'object' && obj !== null;
+    const _isEmpty = (obj: any): boolean => Object.keys(obj).length === 0;
+    const overwrite = (baseObj: any, newObj: any) => {
+      const result = {};
+      for (const key in baseObj) {
+        if (_isObj(baseObj[key])) {
+          result[key] = overwrite(baseObj[key], newObj[key] || {});
+        } else {
+          result[key] = newObj[key] || null;
         }
-      )
-    }
+      }
+      return result;
+    };
+    this.route.queryParams.subscribe(params => {
+      const paramModel = JSON.parse(localStorage.getItem(params['ref']));
+
+      if (_isEmpty(this.form.getRawValue())) {
+        this.form.patchValue({
+          ...this.model, ...paramModel
+        });
+      } else {
+        const updatedFormValue = overwrite(
+          this.form.getRawValue(),
+          paramModel
+        );
+        this.form.setValue(updatedFormValue);
+      }
+    });
 
     this.form.valueChanges
       .pipe(pairwise())
       .subscribe(([prev, next]: [any, any]) => {
+        const md5 = new Md5();
+        const hashCode = md5.appendStr(JSON.stringify(next)).end()
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { ref: hashCode },
+          queryParamsHandling: 'merge'
+        });
+        localStorage.setItem(hashCode.toString(), JSON.stringify(next));
         this.filterChange.emit(next);
         if (this.formlyUpdateComunicationService) {
           this.formlyUpdateComunicationService.updateFilter(next);
@@ -98,7 +122,7 @@ export class SdsFiltersComponent implements OnInit {
     encodedValues.split('&').forEach(pair => {
       if (pair !== '') {
         const splitpair = pair.split('=');
-        target[ splitpair[0]] = splitpair[1];
+        target[splitpair[0]] = splitpair[1];
       }
     });
     return target;

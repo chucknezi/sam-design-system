@@ -20,15 +20,6 @@ export class SearchListLayoutComponent implements OnInit {
   constructor(@Optional() private formlyUpdateComunicationService: SDSFormlyUpdateComunicationService,
     private router: Router, private route: ActivatedRoute, ) {
      
-    this.route.queryParams.subscribe(params => {
-      if (params['ref']) {
-
-        const getStorageFilter = JSON.parse(localStorage.getItem(params['ref']));
-        // if (this.formlyUpdateComunicationService) {
-        //   this.formlyUpdateComunicationService.updateFilter(getStorageFilter);
-        // }
-      }
-    })
   }
 
   /**
@@ -60,15 +51,6 @@ export class SearchListLayoutComponent implements OnInit {
     if (this.formlyUpdateComunicationService) {
       this.formlyUpdateComunicationService.filterUpdate.subscribe(
         (filters) => {
-
-          const randomNumber = Math.floor(Math.random() * 899999 + 100000)
-          this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: { ref: randomNumber },
-            queryParamsHandling: 'merge'
-          });
-          localStorage.clear();
-          localStorage.setItem(randomNumber.toString(), JSON.stringify(filters));
           this.updateFilter(filters);
         }
       )
