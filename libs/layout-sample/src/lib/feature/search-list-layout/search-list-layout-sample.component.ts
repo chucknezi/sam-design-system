@@ -38,9 +38,9 @@ export class SearchListLayoutSampleComponent {
   form = new FormGroup({});
   model = {
     
-    searchEntity: {
-      uniqueEntityIdSam: 30
-    }
+    // searchEntity: {
+    //   uniqueEntityIdSam: 30
+    // }
   };
   options: FormlyFormOptions = {};
 

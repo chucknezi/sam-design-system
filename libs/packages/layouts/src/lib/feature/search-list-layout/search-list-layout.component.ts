@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ContentChild, TemplateRef, Optional } from '@
 import { BehaviorSubject } from "rxjs";
 import { SearchListInterface, SearchListConfiguration } from './model/search-list-layout.model';
 import { SDSFormlyUpdateComunicationService } from '@gsa-sam/sam-formly';
-import { Router, NavigationStart } from '@angular/router';
+import { Router, NavigationStart, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Event as NavigationEvent } from "@angular/router";
 @Component({
@@ -17,43 +17,18 @@ export class SearchListLayoutComponent implements OnInit {
   */
   @ContentChild('resultContent') resultContentTemplate: TemplateRef<any>;
 
-  constructor(@Optional() private formlyUpdateComunicationService: SDSFormlyUpdateComunicationService, private router: Router) { 
+  constructor(@Optional() private formlyUpdateComunicationService: SDSFormlyUpdateComunicationService,
+    private router: Router, private route: ActivatedRoute, ) {
+     
+    this.route.queryParams.subscribe(params => {
+      if (params['ref']) {
 
-
-  //   router.events
-  //   .pipe(
-    
-  //     filter(
-  //       ( event: NavigationEvent ) => {
-
-  //         return( event instanceof NavigationStart );
-
-  //       }
-  //     )
-  //   )
-  //   .subscribe(
-  //     ( event: NavigationStart ) => {
-
-      
-  //       console.log( "navigation id:", event.id );
-  //       console.log( "route:", event.url );
-       
-  //       console.log( "trigger:", event.navigationTrigger );
-
-        
-  //       if ( event.restoredState ) {
-
-  //         console.warn("restoring navigation id:",event.restoredState.navigationId);
-
-  //       }
-
-  //       console.groupEnd();
-
-  //     }
-  //   )
-  // ;
-
-
+        const getStorageFilter = JSON.parse(localStorage.getItem(params['ref']));
+        // if (this.formlyUpdateComunicationService) {
+        //   this.formlyUpdateComunicationService.updateFilter(getStorageFilter);
+        // }
+      }
+    })
   }
 
   /**
@@ -81,10 +56,19 @@ export class SearchListLayoutComponent implements OnInit {
         this.updateContent();
       }
     );
+
     if (this.formlyUpdateComunicationService) {
       this.formlyUpdateComunicationService.filterUpdate.subscribe(
         (filters) => {
-          localStorage.setItem('filter', JSON.stringify(filters));
+
+          const randomNumber = Math.floor(Math.random() * 899999 + 100000)
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { ref: randomNumber },
+            queryParamsHandling: 'merge'
+          });
+          localStorage.clear();
+          localStorage.setItem(randomNumber.toString(), JSON.stringify(filters));
           this.updateFilter(filters);
         }
       )
@@ -147,9 +131,6 @@ export class SearchListLayoutComponent implements OnInit {
    * calls service when updated
    */
   private updateContent() {
-    const getfilter = JSON.parse(localStorage.getItem('filter'));
-    
-    
     this.service.getData({ 'page': this.page, sortField: this.sortField, filter: this.filterData }).subscribe(
       (result) => {
         this.items = result.items;

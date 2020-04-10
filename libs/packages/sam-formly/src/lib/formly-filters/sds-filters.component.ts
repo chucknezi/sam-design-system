@@ -65,10 +65,18 @@ export class SdsFiltersComponent implements OnInit {
   ngOnInit(): void {
     const hasValue= qs.stringify(this.model, { skipNulls: true});
     if(hasValue){
-      const model = qs.parse(hasValue);
+      // const model = qs.parse(hasValue);
       // if (this.formlyUpdateComunicationService) {
-      //   this.formlyUpdateComunicationService.updateFilter( this.model);
+      //   this.formlyUpdateComunicationService.updateFilter(this.model);
       // }
+    }
+
+    if (this.formlyUpdateComunicationService) {
+      this.formlyUpdateComunicationService.filterUpdate.subscribe(
+        (filters) => {
+       this.model = filters;
+        }
+      )
     }
 
     this.form.valueChanges
