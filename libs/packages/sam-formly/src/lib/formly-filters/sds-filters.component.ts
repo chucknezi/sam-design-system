@@ -65,7 +65,6 @@ export class SdsFiltersComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    localStorage.clear();
     const _isObj = (obj: any): boolean => typeof obj === 'object' && obj !== null;
     const _isEmpty = (obj: any): boolean => Object.keys(obj).length === 0;
     const overwrite = (baseObj: any, newObj: any) => {
@@ -80,16 +79,17 @@ export class SdsFiltersComponent implements OnInit {
       return result;
     };
     this.route.queryParams.subscribe(params => {
-      const paramModel = JSON.parse(localStorage.getItem(params['ref']));
-
       if (_isEmpty(this.form.getRawValue())) {
+        const query = qs.parse(localStorage.getItem(params['ref']));
+       // const query = this.convertToModel(localStorage.getItem(params['ref']));
         this.form.patchValue({
-          ...this.model, ...paramModel
+          ...this.model, ...query
         });
+      
       } else {
         const updatedFormValue = overwrite(
           this.form.getRawValue(),
-          paramModel
+          qs.parse(localStorage.getItem(params['ref']))
         );
         this.form.setValue(updatedFormValue);
       }
@@ -98,14 +98,15 @@ export class SdsFiltersComponent implements OnInit {
     this.form.valueChanges
       .pipe(pairwise())
       .subscribe(([prev, next]: [any, any]) => {
+        const params = this.convertToParam(next);
         const md5 = new Md5();
-        const hashCode = md5.appendStr(JSON.stringify(next)).end()
+        const hashCode = md5.appendStr(qs.stringify(params)).end()
         this.router.navigate([], {
           relativeTo: this.route,
           queryParams: { ref: hashCode },
           queryParamsHandling: 'merge'
         });
-        localStorage.setItem(hashCode.toString(), JSON.stringify(next));
+        localStorage.setItem(hashCode.toString(), qs.stringify(params));
         this.filterChange.emit(next);
         if (this.formlyUpdateComunicationService) {
           this.formlyUpdateComunicationService.updateFilter(next);
@@ -113,10 +114,59 @@ export class SdsFiltersComponent implements OnInit {
       });
   }
 
+
+  // ngOnInit(): void {
+  //   localStorage.clear();
+  //   const _isObj = (obj: any): boolean => typeof obj === 'object' && obj !== null;
+  //   const _isEmpty = (obj: any): boolean => Object.keys(obj).length === 0;
+  //   const overwrite = (baseObj: any, newObj: any) => {
+  //     const result = {};
+  //     for (const key in baseObj) {
+  //       if (_isObj(baseObj[key])) {
+  //         result[key] = overwrite(baseObj[key], newObj[key] || {});
+  //       } else {
+  //         result[key] = newObj[key] || null;
+  //       }
+  //     }
+  //     return result;
+  //   };
+  //   this.route.queryParams.subscribe(params => {
+  //     const paramModel = JSON.parse(localStorage.getItem(params['ref']));
+
+  //     if (_isEmpty(this.form.getRawValue())) {
+  //       this.form.patchValue({
+  //         ...this.model, ...paramModel
+  //       });
+  //     } else {
+  //       const updatedFormValue = overwrite(
+  //         this.form.getRawValue(),
+  //         paramModel
+  //       );
+  //       this.form.setValue(updatedFormValue);
+  //     }
+  //   });
+
+  //   this.form.valueChanges
+  //     .pipe(pairwise())
+  //     .subscribe(([prev, next]: [any, any]) => {
+  //       const md5 = new Md5();
+  //       const hashCode = md5.appendStr(JSON.stringify(next)).end()
+  //       this.router.navigate([], {
+  //         relativeTo: this.route,
+  //         queryParams: { ref: hashCode },
+  //         queryParamsHandling: 'merge'
+  //       });
+  //       localStorage.setItem(hashCode.toString(), JSON.stringify(next));
+  //       this.filterChange.emit(next);
+  //       if (this.formlyUpdateComunicationService) {
+  //         this.formlyUpdateComunicationService.updateFilter(next);
+  //       }
+  //     });
+  // }
+
   convertToParam(filters) {
-    const encodedValues = qs.stringify(filters, {
-      skipNulls: true,
-      encode: false
+    const encodedValues = qs.stringify(filters,{
+      skipNulls: true, encode: false
     });
     const target = {};
     encodedValues.split('&').forEach(pair => {
