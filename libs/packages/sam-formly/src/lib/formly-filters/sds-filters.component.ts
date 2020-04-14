@@ -1,7 +1,7 @@
 import {
   Component, Input, Output,
   ChangeDetectionStrategy, ChangeDetectorRef,
-  EventEmitter, Optional, OnInit
+  EventEmitter, Optional, OnInit, HostListener
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
@@ -112,16 +112,14 @@ export class SdsFiltersComponent implements OnInit {
     this.form.valueChanges
       .pipe(pairwise())
       .subscribe(([prev, next]: [any, any]) => {
-          const randomNumber = Math.floor(Math.random() * 899999 + 100000);
-          const md5 = new Md5();
-          const hashCode = md5.appendStr(qs.stringify(params)).end()
-          
+         const md5 = new Md5();
+          const hashCode = md5.appendStr(qs.stringify(next)).end()
           this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { ref: randomNumber },
+            queryParams: { ref: hashCode },
             queryParamsHandling: 'merge'
           });
-          localStorage.setItem(randomNumber.toString(), JSON.stringify(next));
+          localStorage.setItem(hashCode.toString(), JSON.stringify(next));
         this.filterChange.emit(next);
         if (this.formlyUpdateComunicationService) {
           this.formlyUpdateComunicationService.updateFilter(next);
