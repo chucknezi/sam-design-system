@@ -38,7 +38,8 @@
     "demo:docs:formly": "npx compodoc -p libs/packages/sam-formly/tsconfig.json -e json -d libs/documentation/src/lib/apidoc/formly --minimal  && node ./scripts/generate-docs.ts -f formly",
     "demo:docs:layouts": "npx compodoc -p libs/packages/layouts/tsconfig.json -e json -d libs/documentation/src/lib/apidoc/layouts --minimal  && node ./scripts/generate-docs.ts -f layouts",
     "demo:docs": "npm run demo:docs:components && npm run demo:docs:formly && npm run demo:docs:layouts",
-    "compodocs": "npx compodoc -p libs/packages/components/tsconfig.json -s --minimal"
+    "compodocs": "npx compodoc -p libs/packages/components/tsconfig.json -s --minimal",
+    "circleci": "npm run test -- --no-watch --no-progress --code-coverage --browsers=ChromeHeadlessCI"
   },
   "private": true,
   "dependencies": {
