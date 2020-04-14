@@ -55,58 +55,73 @@ export class SdsFiltersComponent implements OnInit {
    */
   @Input() debounceTime = 0;
 
-  routeTrigger = '';
+  // routeTrigger = '';
+  _isObj = (obj: any): boolean => typeof obj === 'object' && obj !== null;
+  _isEmpty = (obj: any): boolean => Object.keys(obj).length === 0;
+  nullify = (obj: any) => {
+  for (let key in obj) {
+    if (this._isObj(obj[key])) {
+      obj[key] = this.nullify(obj[key]);
+    } else {
+      obj[key] = null;
+    }
+  }
+  return obj;
+};
+
   constructor(
     @Optional()
-    private formlyUpdateComunicationService: SDSFormlyUpdateComunicationService,
-    private cdr: ChangeDetectorRef,
-    private router: Router,
-    private route: ActivatedRoute,
-  ) { }
+    private formlyUpdateComunicationService: SDSFormlyUpdateComunicationService, private cdr: ChangeDetectorRef,
+    private router: Router, private route: ActivatedRoute
+  ) {}
 
-  ngOnInit(): void {
-    const _isObj = (obj: any): boolean => typeof obj === 'object' && obj !== null;
-    const _isEmpty = (obj: any): boolean => Object.keys(obj).length === 0;
-    const overwrite = (baseObj: any, newObj: any) => {
-      const result = {};
-      for (const key in baseObj) {
-        if (_isObj(baseObj[key])) {
-          result[key] = overwrite(baseObj[key], newObj[key] || {});
-        } else {
-          result[key] = newObj[key] || null;
-        }
-      }
-      return result;
-    };
-    this.route.queryParams.subscribe(params => {
-      if (_isEmpty(this.form.getRawValue())) {
-        const query = qs.parse(localStorage.getItem(params['ref']));
-       // const query = this.convertToModel(localStorage.getItem(params['ref']));
-        this.form.patchValue({
-          ...this.model, ...query
-        });
-      
-      } else {
-        const updatedFormValue = overwrite(
-          this.form.getRawValue(),
-          qs.parse(localStorage.getItem(params['ref']))
-        );
-        this.form.setValue(updatedFormValue);
-      }
-    });
+  @HostListener('window:popstate', ['$event'])
+  onpopstate(event) {
+    // console.log(event, 'Back button pressed');
+    // this.routeTrigger = event.type;
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const ref = urlParams.get('ref');
+    const updatedFormValue =
+      ref == null
+        ? this.nullify(this.form.value)
+        : JSON.parse(localStorage.getItem(ref));
+    this.form.setValue(updatedFormValue, { emitEvent: false });
+    this.filterChange.emit(updatedFormValue);
+    if (this.formlyUpdateComunicationService) {
+      this.formlyUpdateComunicationService.updateFilter(updatedFormValue);
+    }
+}
+
+   ngOnInit(): void {
+    // checking if model in empty on reload and patching value 
+    if (this._isEmpty(this.form.getRawValue())) {
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const initialRef = urlParams.get('ref');
+      initialRef == null
+        ? localStorage.clear()
+        : ((this.model = JSON.parse(localStorage.getItem(initialRef))),
+        setTimeout(() => {
+          this.form.patchValue({
+            ...this.model
+          }, { emitEvent: false })
+        }));
+    }
 
     this.form.valueChanges
       .pipe(pairwise())
       .subscribe(([prev, next]: [any, any]) => {
-        const params = this.convertToParam(next);
-        const md5 = new Md5();
-        const hashCode = md5.appendStr(qs.stringify(params)).end()
-        this.router.navigate([], {
-          relativeTo: this.route,
-          queryParams: { ref: hashCode },
-          queryParamsHandling: 'merge'
-        });
-        localStorage.setItem(hashCode.toString(), qs.stringify(params));
+          const randomNumber = Math.floor(Math.random() * 899999 + 100000);
+          const md5 = new Md5();
+          const hashCode = md5.appendStr(qs.stringify(params)).end()
+          
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { ref: randomNumber },
+            queryParamsHandling: 'merge'
+          });
+          localStorage.setItem(randomNumber.toString(), JSON.stringify(next));
         this.filterChange.emit(next);
         if (this.formlyUpdateComunicationService) {
           this.formlyUpdateComunicationService.updateFilter(next);
@@ -114,59 +129,10 @@ export class SdsFiltersComponent implements OnInit {
       });
   }
 
-
-  // ngOnInit(): void {
-  //   localStorage.clear();
-  //   const _isObj = (obj: any): boolean => typeof obj === 'object' && obj !== null;
-  //   const _isEmpty = (obj: any): boolean => Object.keys(obj).length === 0;
-  //   const overwrite = (baseObj: any, newObj: any) => {
-  //     const result = {};
-  //     for (const key in baseObj) {
-  //       if (_isObj(baseObj[key])) {
-  //         result[key] = overwrite(baseObj[key], newObj[key] || {});
-  //       } else {
-  //         result[key] = newObj[key] || null;
-  //       }
-  //     }
-  //     return result;
-  //   };
-  //   this.route.queryParams.subscribe(params => {
-  //     const paramModel = JSON.parse(localStorage.getItem(params['ref']));
-
-  //     if (_isEmpty(this.form.getRawValue())) {
-  //       this.form.patchValue({
-  //         ...this.model, ...paramModel
-  //       });
-  //     } else {
-  //       const updatedFormValue = overwrite(
-  //         this.form.getRawValue(),
-  //         paramModel
-  //       );
-  //       this.form.setValue(updatedFormValue);
-  //     }
-  //   });
-
-  //   this.form.valueChanges
-  //     .pipe(pairwise())
-  //     .subscribe(([prev, next]: [any, any]) => {
-  //       const md5 = new Md5();
-  //       const hashCode = md5.appendStr(JSON.stringify(next)).end()
-  //       this.router.navigate([], {
-  //         relativeTo: this.route,
-  //         queryParams: { ref: hashCode },
-  //         queryParamsHandling: 'merge'
-  //       });
-  //       localStorage.setItem(hashCode.toString(), JSON.stringify(next));
-  //       this.filterChange.emit(next);
-  //       if (this.formlyUpdateComunicationService) {
-  //         this.formlyUpdateComunicationService.updateFilter(next);
-  //       }
-  //     });
-  // }
-
   convertToParam(filters) {
-    const encodedValues = qs.stringify(filters,{
-      skipNulls: true, encode: false
+    const encodedValues = qs.stringify(filters, {
+      skipNulls: true,
+      encode: false
     });
     const target = {};
     encodedValues.split('&').forEach(pair => {

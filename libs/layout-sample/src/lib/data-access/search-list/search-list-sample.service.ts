@@ -1,7 +1,6 @@
 import { SearchListSampleData } from './search-list-sample.data';
 import { Observable, of } from 'rxjs';
 import { SearchListInterface, SearchParameters, SearchResult } from '@sam-design-system/layouts';
-
 export class SearchListSampleService implements SearchListInterface {
     getData(search: SearchParameters): Observable<SearchResult> {
         let data = SearchListSampleData;
@@ -9,7 +8,7 @@ export class SearchListSampleService implements SearchListInterface {
             let toReturn = [];
             for (let i = 0; i < data.length; i++) {
                 let item = data[i];
-                if (item.text.toLowerCase().indexOf(search.filter.searchKeyword.keyword.toLowerCase()) !== -1) {
+                if (search.filter.searchKeyword.keyword && item.text.toLowerCase().indexOf(search.filter.searchKeyword.keyword.toLowerCase()) !== -1) {
                     toReturn.push(item);
                 }
             }
