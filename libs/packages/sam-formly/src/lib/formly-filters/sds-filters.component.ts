@@ -55,7 +55,6 @@ export class SdsFiltersComponent implements OnInit {
    */
   @Input() debounceTime = 0;
 
-  // routeTrigger = '';
   _isObj = (obj: any): boolean => typeof obj === 'object' && obj !== null;
   _isEmpty = (obj: any): boolean => Object.keys(obj).length === 0;
   nullify = (obj: any) => {
@@ -77,8 +76,6 @@ export class SdsFiltersComponent implements OnInit {
 
   @HostListener('window:popstate', ['$event'])
   onpopstate(event) {
-    // console.log(event, 'Back button pressed');
-    // this.routeTrigger = event.type;
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const ref = urlParams.get('ref');
@@ -94,7 +91,6 @@ export class SdsFiltersComponent implements OnInit {
 }
 
    ngOnInit(): void {
-    // checking if model in empty on reload and patching value 
     if (this._isEmpty(this.form.getRawValue())) {
       const queryString = window.location.search;
       const urlParams = new URLSearchParams(queryString);
