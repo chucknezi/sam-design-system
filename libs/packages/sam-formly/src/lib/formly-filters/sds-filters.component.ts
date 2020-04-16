@@ -15,7 +15,7 @@ import { Md5 } from 'ts-md5/dist/md5';
 @Component({
   selector: 'sds-filters',
   template: `
-      <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model"></formly-form>`,
+      <formly-form [form]="form" [fields]="fields" (modelChange)="modelChange.next($event)" [options]="options" [model]="model"></formly-form>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
@@ -55,6 +55,8 @@ export class SdsFiltersComponent implements OnInit {
    */
   @Input() debounceTime = 0;
 
+  private timeoutNumber: number;
+
   _isObj = (obj: any): boolean => typeof obj === 'object' && obj !== null;
   _isEmpty = (obj: any): boolean => Object.keys(obj).length === 0;
   nullify = (obj: any) => {
@@ -83,7 +85,7 @@ export class SdsFiltersComponent implements OnInit {
       ref == null
         ? this.nullify(this.form.value)
         : JSON.parse(localStorage.getItem(ref));
-    this.form.setValue(updatedFormValue, { emitEvent: false });
+     this.form.setValue(updatedFormValue, { emitEvent: false });
     this.filterChange.emit(updatedFormValue);
     if (this.formlyUpdateComunicationService) {
       this.formlyUpdateComunicationService.updateFilter(updatedFormValue);
@@ -104,23 +106,39 @@ export class SdsFiltersComponent implements OnInit {
           }, { emitEvent: false })
         }));
     }
-
-    this.form.valueChanges
-      .pipe(pairwise())
-      .subscribe(([prev, next]: [any, any]) => {
+     this.modelChange.subscribe((change) => {
+       window.clearTimeout(this.timeoutNumber);
+       this.timeoutNumber = window.setTimeout(() => {
          const md5 = new Md5();
-          const hashCode = md5.appendStr(qs.stringify(next)).end()
-          this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: { ref: hashCode },
-            queryParamsHandling: 'merge'
-          });
-          localStorage.setItem(hashCode.toString(), JSON.stringify(next));
-        this.filterChange.emit(next);
-        if (this.formlyUpdateComunicationService) {
-          this.formlyUpdateComunicationService.updateFilter(next);
-        }
-      });
+         const hashCode = md5.appendStr(qs.stringify(change)).end();
+         this.router.navigate([], {
+           relativeTo: this.route,
+           queryParams: { ref: hashCode },
+           queryParamsHandling: 'merge'
+         });
+         localStorage.setItem(hashCode.toString(), JSON.stringify(change));
+         this.filterChange.emit(change);
+         if (this.formlyUpdateComunicationService) {
+           this.formlyUpdateComunicationService.updateFilter(change);
+         }
+       }, 150);
+     })
+    // this.form.valueChanges
+    //   .pipe(pairwise())
+    //   .subscribe(([prev, next]: [any, any]) => {
+    //      const md5 = new Md5();
+    //       const hashCode = md5.appendStr(qs.stringify(next)).end()
+    //       this.router.navigate([], {
+    //         relativeTo: this.route,
+    //         queryParams: { ref: hashCode },
+    //         queryParamsHandling: 'merge'
+    //       });
+    //       localStorage.setItem(hashCode.toString(), JSON.stringify(next));
+    //     this.filterChange.emit(next);
+    //     if (this.formlyUpdateComunicationService) {
+    //       this.formlyUpdateComunicationService.updateFilter(next);
+    //     }
+    //   });
   }
 
   convertToParam(filters) {
