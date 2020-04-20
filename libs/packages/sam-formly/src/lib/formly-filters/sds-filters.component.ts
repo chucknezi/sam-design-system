@@ -15,7 +15,7 @@ import { Md5 } from 'ts-md5/dist/md5';
 @Component({
   selector: 'sds-filters',
   template: `
-      <formly-form [form]="form" [fields]="fields" (modelChange)="modelChange.next($event)" [options]="options" [model]="model"></formly-form>`,
+      <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model"></formly-form>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
@@ -90,16 +90,24 @@ export class SdsFiltersComponent implements OnInit {
       ref == null
         ? this.nullify(this.form.value)
         : JSON.parse(localStorage.getItem(ref));
-    console.log(updatedFormValue);
+    this.onModelChange(updatedFormValue);
     if (window.location.pathname.includes('formlyInput')) {
       this.form.patchValue(updatedFormValue, { emitEvent: false });
     } else {
       this.form.setValue(updatedFormValue, { emitEvent: false });
     }
+   
     this.filterChange.emit(updatedFormValue);
     if (this.formlyUpdateComunicationService) {
       this.formlyUpdateComunicationService.updateFilter(updatedFormValue);
     }
+  }
+  onModelChange(change){
+    this.modelChange.next(change);
+    this.modelChange.subscribe((newChange) => {
+      this.model= newChange;
+    })
+
   }
 
   ngOnInit(): void {
@@ -116,6 +124,7 @@ export class SdsFiltersComponent implements OnInit {
             }, { emitEvent: false })
           }));
     }
+  
 
     // this.modelChange.subscribe((change) => {
     //   window.clearTimeout(this.timeoutNumber);
@@ -142,6 +151,7 @@ export class SdsFiltersComponent implements OnInit {
       .subscribe(([prev, next]: [any, any]) => {
         const md5 = new Md5();
         const hashCode = md5.appendStr(qs.stringify(next)).end();
+        this.onModelChange(next);
         this.router.navigate([], {
           relativeTo: this.route,
           queryParams: { ref: hashCode },
