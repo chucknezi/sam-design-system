@@ -3,7 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'sds-text',
-  template: '<input [(ngModel)]="val"/>',
+  template: '<input class="usa-input" [(ngModel)]="val"/>',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
