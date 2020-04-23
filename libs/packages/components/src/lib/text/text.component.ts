@@ -3,7 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'sds-text',
-  template: '<input class="usa-input" [(ngModel)]="val"/>',
+  template: '<input class="usa-input" [(ngModel)]="value"/>',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -15,7 +15,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 export class SdsTextComponent implements ControlValueAccessor {
 
   constructor() { }
-
+ 
   onChange: any = () => {}
   onTouch: any = () => {}
   val= ""
@@ -30,7 +30,7 @@ export class SdsTextComponent implements ControlValueAccessor {
   }
 
   writeValue(value: any){
-    this.val = value
+    this.value = value
   }
 
   registerOnChange(fn: any){
