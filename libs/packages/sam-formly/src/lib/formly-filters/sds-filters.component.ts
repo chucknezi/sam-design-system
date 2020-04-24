@@ -70,15 +70,15 @@ export class SdsFiltersComponent implements OnInit {
   _isObj = (obj: any): boolean => typeof obj === 'object' && obj !== null;
   _isEmpty = (obj: any): boolean => Object.keys(obj).length === 0;
   nullify = (obj: any) => {
-  for (let key in obj) {
-    if (this._isObj(obj[key])) {
-      obj[key] = this.nullify(obj[key]);
-    } else {
-      obj[key] = null;
+    for (let key in obj) {
+      if (this._isObj(obj[key])) {
+        obj[key] = this.nullify(obj[key]);
+      } else {
+        obj[key] = null;
+      }
     }
-  }
-  return obj;
-};
+    return obj;
+  };
 
   constructor(
     @Optional()
@@ -93,27 +93,23 @@ export class SdsFiltersComponent implements OnInit {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const ref = urlParams.get('ref');
-    const updatedFormValue = JSON.parse(localStorage.getItem(ref));
+    const updatedFormValue =
       ref == null
         ? this.nullify(this.form.value)
-        : this.updateForm(updatedFormValue)
+        : JSON.parse(localStorage.getItem(ref));
+    console.log(updatedFormValue);
+    if (window.location.pathname.includes('formlyInput')) {
+      this.form.patchValue(updatedFormValue, { emitEvent: false });
+    } else {
+      this.form.setValue(updatedFormValue, { emitEvent: false });
+    }
     this.filterChange.emit(updatedFormValue);
     if (this.formlyUpdateComunicationService) {
       this.formlyUpdateComunicationService.updateFilter(updatedFormValue);
     }
-}
+  }
 
-   updateForm(updatedFormValue) {
-    if (window.location.pathname.includes('formlyInput')) {      
-      this.form.patchValue(updatedFormValue, { emitEvent: false });
-      // console.log(this.model);
-    } else {
-      this.form.setValue(updatedFormValue, { emitEvent: false });
-    }
-   }
-
-   ngOnInit(): void {
-    // checking if model in empty on reload and patching value 
+  ngOnInit(): void {
     if (this._isEmpty(this.form.getRawValue())) {
       const queryString = window.location.search;
       const urlParams = new URLSearchParams(queryString);
@@ -121,43 +117,27 @@ export class SdsFiltersComponent implements OnInit {
       initialRef == null
         ? localStorage.clear()
         : ((this.model = JSON.parse(localStorage.getItem(initialRef))),
-        setTimeout(() => {
-          this.form.patchValue({
-            ...this.model
-          }, { emitEvent: false })
-        }));
+          setTimeout(() => {
+            this.form.patchValue(
+              {
+                ...this.model
+              },
+              { emitEvent: false }
+            );
+          }));
     }
-
-    // this.router.events
-    //   .pipe(filter(event => event instanceof NavigationStart))
-    //   .subscribe((event: NavigationStart) => {
-    //     this.routeTrigger = event.navigationTrigger;
-    //     // console.log(event.);
-    //     // console.log(this.routeTrigger);
-    //     if (event.restoredState) {
-    //       const queryString = window.location.search;
-    //       const urlParams = new URLSearchParams(queryString);
-    //       const ref = urlParams.get('ref');
-    //       const updatedFormValue =
-    //         ref == null
-    //           ? nullify(this.form.value)
-    //           : JSON.parse(localStorage.getItem(ref));
-    //       this.form.setValue(updatedFormValue);
-    //     }
-    //     console.groupEnd();
-    //   });
 
     this.form.valueChanges
       .pipe(pairwise())
       .subscribe(([prev, next]: [any, any]) => {
         const md5 = new Md5();
         const hashCode = md5.appendStr(qs.stringify(next)).end();         
-         this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: { ref: hashCode },
-            queryParamsHandling: 'merge'
-          });
-          localStorage.setItem(hashCode.toString(), JSON.stringify(next));
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { ref: hashCode },
+          queryParamsHandling: 'merge'
+        });
+        localStorage.setItem(hashCode.toString(), JSON.stringify(next));
         this.filterChange.emit(next);
         if (this.formlyUpdateComunicationService) {
           this.formlyUpdateComunicationService.updateFilter(next);
