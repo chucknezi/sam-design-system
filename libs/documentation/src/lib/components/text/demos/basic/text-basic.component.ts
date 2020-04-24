@@ -6,9 +6,7 @@ import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
   templateUrl: './text-basic.component.html'
 })
 export class TextBasic {
-
-  textModel = "text";
-
+  textModel = 'test' ;
   form = new FormGroup({});
   model: any = {};
   options: FormlyFormOptions = {};
@@ -25,7 +23,4 @@ export class TextBasic {
     },
   ];
   
-  log(value) {
-    console.log(`%cLog: ${value}`, 'color: blue; font-weight: bold');
-  }
 }

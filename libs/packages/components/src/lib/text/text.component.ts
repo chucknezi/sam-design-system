@@ -1,9 +1,14 @@
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
+
+const noop = () => {};
+
 @Component({
   selector: 'sds-text',
-  template: '<input class="usa-input" [(ngModel)]="value"/>',
+  template: ` <input [(ngModel)]="value" class="usa-input" (blur)="onBlur()"/>
+  <br/>
+  <sds-text-child [inputtest]="value"></sds-text-child>`,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -13,32 +18,37 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ]
 })
 export class SdsTextComponent implements ControlValueAccessor {
+   private innerValue;
 
-  constructor() { }
- 
-  onChange: any = () => {}
-  onTouch: any = () => {}
-  val= ""
+   private onTouchedCallback: () => {};
+   private onChangeCallback: (_: any) => {};
 
-  set value(val){
-    if( val !== undefined && this.val !== val){
-    this.val = val
-    this.onChange(val)
-    this.onTouch(val)
-    }
-   
-  }
+   get value(): any {
+       return this.innerValue;
+   }
 
-  writeValue(value: any){
-    this.value = value
-  }
+   set value(v: any) {
+       if (v !== this.innerValue) {
+           this.innerValue = v;
+           this.onChangeCallback(v);
+       }
+   }
 
-  registerOnChange(fn: any){
-    this.onChange = fn
-  }
+   onBlur() {
+       this.onTouchedCallback();
+   }
 
-  registerOnTouched(fn: any){
-    this.onTouch = fn
-  }
+   writeValue(value: any) {
+       if (value !== this.innerValue) {
+           this.innerValue = value;
+       }
+   }
 
+   registerOnChange(fn: any) {
+       this.onChangeCallback = fn;
+   }
+
+   registerOnTouched(fn: any) {
+       this.onTouchedCallback = fn;
+   }
 }
