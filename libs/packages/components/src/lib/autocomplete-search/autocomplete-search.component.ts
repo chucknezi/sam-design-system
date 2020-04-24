@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, TemplateRef, ElementRef, forwardRef, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, ViewChild, TemplateRef, ElementRef, forwardRef, ChangeDetectorRef, DoCheck } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { SDSAutocompleteServiceInterface } from './models/SDSAutocompleteServiceInterface';
 import { KeyHelper, KEYS } from '../key-helper/key-helper';
@@ -18,8 +18,10 @@ const Autocomplete_Autocomplete_VALUE_ACCESSOR: any = {
   providers: [Autocomplete_Autocomplete_VALUE_ACCESSOR]
 })
 export class SDSAutocompleteSearchComponent implements ControlValueAccessor {
-
-  constructor(private _changeDetectorRef: ChangeDetectorRef) { }
+ 
+  constructor(private _changeDetectorRef: ChangeDetectorRef) {
+  
+   }
   /**
    * Ul list of elements 
    */
@@ -39,7 +41,7 @@ export class SDSAutocompleteSearchComponent implements ControlValueAccessor {
   /**
    * The data model that has the selected item
    */
-  public model: SDSSelectedItemModel;
+  public model: any;
 
   /**
    * Configuration for the Autocomplete control 
@@ -485,4 +487,9 @@ export class SDSAutocompleteSearchComponent implements ControlValueAccessor {
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
   }
+
+  private onChange(event : any) {
+    this.propogateChange(this.model);
+}
+
 }

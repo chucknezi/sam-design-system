@@ -4,18 +4,18 @@ import {  Component,
   ChangeDetectorRef } from '@angular/core';
 import { FieldType } from '@ngx-formly/core';
 import { AbstractSdsFormly } from '../sds-formly';
-import { SDSAutocompleteComponent } from '@gsa-sam/components'
+import { SDSAutocompleteSearchComponent } from '@gsa-sam/components'
 
 @Component({
   selector: 'sds-formly-field-autocomplete',
   template: `
-  <sds-autocomplete [formControl]="formControl"></sds-autocomplete>
+  <sds-search-autocomplete [formControl]="formControl"></sds-search-autocomplete>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormlyFieldAutoCompleteComponent extends AbstractSdsFormly {
 
- @ViewChild(SDSAutocompleteComponent) public template: SDSAutocompleteComponent;
+ @ViewChild(SDSAutocompleteSearchComponent) public template: SDSAutocompleteSearchComponent;
 
   constructor (_cdr: ChangeDetectorRef) {
     super(); /* istanbul ignore next */
