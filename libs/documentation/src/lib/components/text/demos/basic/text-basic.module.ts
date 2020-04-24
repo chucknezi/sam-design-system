@@ -5,7 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SdsTextModule } from '@gsa-sam/components';
 import { SdsFormlyModule } from '@sam-design-system/sam-formly';
 import { FormlyModule } from '@ngx-formly/core';
-
+import { NgSelectModule } from '@ng-select/ng-select';
 @NgModule({
   declarations: [TextBasic],
   imports: [CommonModule,
@@ -14,6 +14,7 @@ import { FormlyModule } from '@ngx-formly/core';
     ReactiveFormsModule,
     SdsFormlyModule, 
     FormsModule,
+    NgSelectModule,
     FormlyModule.forRoot()
 ],
   exports: [TextBasic],

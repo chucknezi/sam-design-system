@@ -5,7 +5,7 @@ import { FormlyModule, FormlyFieldConfig } from '@ngx-formly/core';
 import { FormlySelectModule } from '@ngx-formly/core/select';
 import { FIELD_TYPE_COMPONENTS, FORMLY_CONFIG } from './formly.config';
 import {
-  SdsAccordionModule, SdsAutocompleteModule,SdsTextModule
+  SdsAccordionModule, SdsAutocompleteModule,SdsTextModule, 
 } from '@gsa-sam/components';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { maxDateValidator, minDateValidator } from './formly.validators';
 import { AnimationWrapperComponent } from './wrappers/form-field.animation';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 // Validate the min length of the charecter
 export function minlengthValidationMessage(err, field) {
@@ -84,6 +85,7 @@ export { maxDateValidator, minDateValidator } from './formly.validators';
     FontAwesomeModule,
     ReactiveFormsModule,
     FormlySelectModule,
+    NgSelectModule,
     FormlyModule.forChild(FORMLY_CONFIG),
     FormlyModule.forRoot({
       validationMessages: [

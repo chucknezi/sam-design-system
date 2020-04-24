@@ -27,10 +27,12 @@ export const FIELD_TYPE_COMPONENTS = [
   FormlyFieldDatePickerComponent,
   FormlyFormFieldFilterWrapperComponent,
   FormlyFieldButtonComponent,
-  FormlyFieldTextComponent
+  FormlyFieldTextComponent,
+  FormlyFieldNgSelect
 ];
 import { maxDateValidator, minDateValidator } from './formly.validators';
 import { FormlyFieldTextComponent } from './types/text';
+import { FormlyFieldNgSelect } from './types/ng-select';
 
 export const FORMLY_WRAPPERS: any = [
   { name: 'form-field', component: FormlyWrapperFormFieldComponent, componentName: "FormlyWrapperFormFieldComponent" },
@@ -48,6 +50,11 @@ export const FORMLY_CONFIG: ConfigOption = {
     {
       name: 'customtext',
       component: FormlyFieldTextComponent,
+      wrappers: ['form-field']
+    },
+    {
+      name: 'ngselect',
+      component: FormlyFieldNgSelect,
       wrappers: ['form-field']
     },
     {
