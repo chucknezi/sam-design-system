@@ -95,7 +95,7 @@ export class SdsFiltersComponent implements OnInit {
     const ref = urlParams.get('ref');
     const updatedFormValue =
       ref == null
-        ? this.nullify(this.form.value)
+        ? this.options.resetModel()//this.nullify(this.form.value)
         : JSON.parse(localStorage.getItem(ref));
     console.log(updatedFormValue);
     if (window.location.pathname.includes('formlyInput')) {
